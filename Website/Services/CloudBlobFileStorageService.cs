@@ -9,8 +9,8 @@ namespace NuGetGallery
 {
     public class CloudBlobFileStorageService : IFileStorageService
     {
-        ICloudBlobClient client;
-        IDictionary<string, ICloudBlobContainer> containers = new Dictionary<string, ICloudBlobContainer>();
+        private ICloudBlobClient client;
+        private Dictionary<string, ICloudBlobContainer> containers = new Dictionary<string, ICloudBlobContainer>(StringComparer.OrdinalIgnoreCase);
 
         public CloudBlobFileStorageService(ICloudBlobClient client)
         {

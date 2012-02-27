@@ -10,6 +10,8 @@ namespace NuGetGallery
 {
     public partial class ApiController : Controller
     {
+        private static readonly object contentsLock = new object();
+        private static readonly byte[] fileContents;
         private readonly IPackageService packageSvc;
         private readonly IUserService userSvc;
         private readonly IPackageFileService packageFileSvc;
@@ -19,6 +21,22 @@ namespace NuGetGallery
             this.packageSvc = packageSvc;
             this.packageFileSvc = packageFileSvc;
             this.userSvc = userSvc;
+        }
+
+        private byte[] EnsureNuGetExe()
+        {
+            if (fileContents == null)
+            {
+                lock (contentsLock)
+                {
+                    if (fileContents == null)
+                    {
+                        var package = packageSvc.FindPackageByIdAndVersion("NuGet.CommandLine")
+                    }
+                }
+            }
+            var package = packageSvc
+
         }
 
         [ActionName("GetPackageApi"), HttpGet]
