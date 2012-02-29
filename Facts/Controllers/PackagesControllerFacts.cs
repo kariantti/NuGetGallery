@@ -1166,8 +1166,8 @@ namespace NuGetGallery
         private static Mock<ISearchService> CreateSearchService()
         {
             var searchService = new Mock<ISearchService>();
-            searchService.Setup(s => s.Search(It.IsAny<IQueryable<Package>>(), It.IsAny<string>())).Returns((IQueryable<Package> p, string searchTerm) => p);
-            searchService.Setup(s => s.SearchWithRelevance(It.IsAny<IQueryable<Package>>(), It.IsAny<string>())).Returns((IQueryable<Package> p, string searchTerm) => p);
+            searchService.Setup(s => s.Search(It.IsAny<IQueryable<Package>>(), It.IsAny<string>(), It.IsAny<string>(), 20))
+                         .Returns((IQueryable<Package> p, string search, string sort, int take) => new SearchResults { Packages = p, Count = p.Count() });
 
             return searchService;
         }

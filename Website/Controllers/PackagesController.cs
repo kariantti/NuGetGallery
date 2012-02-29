@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -150,20 +150,15 @@ namespace NuGetGallery
             int totalHits;
             if (!String.IsNullOrEmpty(q))
             {
-                if (sortOrder.Equals(Constants.RelevanceSortOrder, StringComparison.OrdinalIgnoreCase))
+
+                var searchResults = searchSvc.Search(packageVersions, searchTerm: q, sortExpression: sortOrder.Trim(), take: page * Constants.DefaultPackageListPageSize);
+                totalHits = searchResults.Count;
+                packageVersions = searchResults.Packages;
+
+                if (page == 1 && !packageVersions.Any())
                 {
-                    packageVersions = searchSvc.SearchWithRelevance(packageVersions, q, take: page * Constants.DefaultPackageListPageSize, totalHits: out totalHits);
-                    if (page == 1 && !packageVersions.Any())
-                    {
-                        // In the event the index wasn't updated, we may get an incorrect count. 
-                        totalHits = 0;
-                    }
-                }
-                else
-                {
-                    packageVersions = searchSvc.Search(packageVersions, q)
-                                                   .SortBy(GetSortExpression(sortOrder));
-                    totalHits = packageVersions.Count();
+                    // In the event the index wasn't updated, we may get an incorrect count. 
+                    totalHits = 0;
                 }
             }
             else

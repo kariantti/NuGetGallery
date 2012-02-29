@@ -1,14 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace NuGetGallery
 {
     public interface ISearchService
     {
-        IQueryable<Package> Search(IQueryable<Package> packages, string searchTerm);
-
-        IQueryable<Package> SearchWithRelevance(IQueryable<Package> packages, string searchTerm);
-
-        IQueryable<Package> SearchWithRelevance(IQueryable<Package> packages, string searchTerm, int take, out int totalHits);
+        SearchResults Search(IQueryable<Package> packages, string searchTerm, string sortExpression, int take);
     }
+
+    public class SearchResults
+    {
+        public IQueryable<Package> Packages { get; set; }
+
+        public int Count { get; set; }
+    }
+
 }

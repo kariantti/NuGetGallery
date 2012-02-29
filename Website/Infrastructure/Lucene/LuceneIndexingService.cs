@@ -16,6 +16,7 @@ namespace NuGetGallery
     {
         private static readonly TimeSpan indexRecreateTime = TimeSpan.FromDays(3);
         private static readonly char[] idSeparators = new[] { '.', '-' };
+        private static readonly object _lock = new object();
 
         public void UpdateIndex()
         {
@@ -27,16 +28,19 @@ namespace NuGetGallery
 
             DateTime? lastWriteTime = GetLastWriteTime();
             bool creatingIndex = lastWriteTime == null;
-            using (var context = CreateContext())
+            lock (_lock)
             {
-                var packages = GetPackages(context, lastWriteTime);
-                if (packages.Any())
+                using (var context = CreateContext())
                 {
-                    EnsureIndexDirectory();
-                    WriteIndex(creatingIndex, packages);
+                    var packages = GetPackages(context, lastWriteTime);
+                    if (packages.Any())
+                    {
+                        EnsureIndexDirectory();
+                        WriteIndex(creatingIndex, packages);
+                    }
                 }
+                UpdateLastWriteTime();
             }
-            UpdateLastWriteTime();
         }
 
         protected internal virtual DbContext CreateContext()
@@ -49,14 +53,14 @@ namespace NuGetGallery
             if (dateTime == null)
             {
                 // If we're creating the index for the first time, fetch the new packages.
-                string sql = @"Select p.[Key], pr.Id, p.Title, p.Description, p.Tags, p.FlattenedAuthors as Authors, pr.DownloadCount, p.[Key] as LatestKey
+                string sql = @"Select p.[Key], pr.Id, p.Title, p.Description, p.Tags, p.FlattenedAuthors as Authors, pr.DownloadCount, p.Published as PublishedDate, p.[Key] as LatestKey
                          from Packages p join PackageRegistrations pr on p.PackageRegistrationKey = pr.[Key]
                          where p.IsLatestStable = 1 or (p.IsLatest = 1 and Not exists (Select 1 from Packages iP where iP.PackageRegistrationKey = p.PackageRegistrationKey and iP.IsLatestStable = 1))";
                 return context.Database.SqlQuery<PackageIndexEntity>(sql).ToList();
             }
             else
             {
-                string sql = @"Select p.[Key], pr.Id, p.Title, p.Description, p.Tags, p.FlattenedAuthors as Authors, pr.DownloadCount,
+                string sql = @"Select p.[Key], pr.Id, p.Title, p.Description, p.Tags, p.FlattenedAuthors as Authors, pr.DownloadCount, p.Published as PublishedDate, 
                                    LatestKey = CASE When p.IsLatest = 1 then p.[Key] Else (Select pLatest.[Key] from Packages pLatest where pLatest.PackageRegistrationKey = pr.[Key] and pLatest.IsLatest = 1) End
                                    from Packages p join PackageRegistrations pr on p.PackageRegistrationKey = pr.[Key]
                                    where p.LastUpdated > @UpdatedDate";
@@ -108,6 +112,7 @@ namespace NuGetGallery
                 }
                 document.Add(new Field("Author", package.Authors, Field.Store.NO, Field.Index.ANALYZED));
                 document.Add(new Field("DownloadCount", package.DownloadCount.ToString(CultureInfo.InvariantCulture), Field.Store.NO, Field.Index.ANALYZED_NO_NORMS));
+                document.Add(new Field("PublishedDate", package.PublishedDate.Ticks.ToString(CultureInfo.InvariantCulture), Field.Store.YES, Field.Index.ANALYZED_NO_NORMS));
 
                 indexWriter.AddDocument(document);
             }
