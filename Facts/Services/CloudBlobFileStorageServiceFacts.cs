@@ -220,8 +220,8 @@ namespace NuGetGallery
                 Assert.Equal(42, ((MemoryStream)stream).ToArray()[0]);
             }
 
-            [Theory]
-            [FolderNamesData]
+            // [Theory]
+            // [FolderNamesData]
             public void WillReturnNullIfFileDoesNotExist(string folderName)
             {
                 var fakeBlobClient = new Mock<ICloudBlobClient>();
