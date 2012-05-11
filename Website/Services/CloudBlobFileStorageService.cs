@@ -67,20 +67,8 @@ namespace NuGetGallery
             var container = GetContainer(folderName);
             var blob = container.GetBlobReference(fileName);
             var stream = new MemoryStream();
-            try
-            {
-                blob.DownloadToStream(stream);
-            }
-            catch (TestableStorageClientException ex)
-            {
-                stream.Dispose();
-                if (ex.ErrorCode == StorageErrorCode.BlobNotFound)
-                    return null;
-                else
-                    throw;
-            }
-
-            stream.Position = 0;
+            blob.DownloadToStream(stream);
+            stream.Seek(0, SeekOrigin.Begin);
             return stream;
         }
 
