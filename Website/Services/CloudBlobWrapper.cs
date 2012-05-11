@@ -30,14 +30,7 @@ namespace NuGetGallery
 
         public void DownloadToStream(Stream target)
         {
-            try
-            {
-                blob.DownloadToStream(target);
-            }
-            catch (StorageClientException ex)
-            {
-                throw new TestableStorageClientException(ex);
-            }
+            blob.DownloadToStream(target);
         }
 
         public void SetProperties()
