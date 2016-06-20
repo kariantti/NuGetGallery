@@ -43,8 +43,8 @@ _Message sent from {5}_
 ";
             body = String.Format(CultureInfo.CurrentCulture,
                 body,
-                fromAddress.DisplayName,
-                fromAddress.Address,
+                settings.GalleryOwnerName,
+                settings.GalleryOwnerEmail,
                 package.PackageRegistration.Id,
                 package.Version,
                 message,
@@ -54,7 +54,7 @@ _Message sent from {5}_
             {
                 mailMessage.Subject = String.Format(CultureInfo.CurrentCulture, subject, settings.GalleryOwnerName, package.PackageRegistration.Id, package.Version);
                 mailMessage.Body = body;
-                mailMessage.From = fromAddress;
+                mailMessage.From = new MailAddress(settings.GalleryOwnerName, settings.GalleryOwnerEmail);
 
                 mailMessage.To.Add(settings.GalleryOwnerEmail);
                 SendMessage(mailMessage);
@@ -76,8 +76,8 @@ _Message sent from {5}_
 
             body = String.Format(CultureInfo.CurrentCulture,
                 body,
-                fromAddress.DisplayName,
-                fromAddress.Address,
+                settings.GalleryOwnerName,
+                settings.GalleryOwnerEmail,
                 packageRegistration.Id,
                 message,
                 settings.GalleryOwnerName,
@@ -89,7 +89,7 @@ _Message sent from {5}_
             {
                 mailMessage.Subject = subject;
                 mailMessage.Body = body;
-                mailMessage.From = fromAddress;
+                mailMessage.From = new MailAddress(settings.GalleryOwnerName, settings.GalleryOwnerEmail); ;
 
                 AddOwnersToMailMessage(packageRegistration, mailMessage);
                 if (mailMessage.To.Any())
@@ -249,7 +249,7 @@ The {3} Team";
             {
                 mailMessage.Subject = String.Format(CultureInfo.CurrentCulture, subject, settings.GalleryOwnerName, fromUser.Username, package.Id);
                 mailMessage.Body = body;
-                mailMessage.From = fromUser.ToMailAddress();
+                mailMessage.From = new MailAddress(settings.GalleryOwnerName, settings.GalleryOwnerEmail);
 
                 mailMessage.To.Add(toUser.ToMailAddress());
                 SendMessage(mailMessage);
